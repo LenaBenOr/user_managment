@@ -2,13 +2,14 @@ import mysql.connector
 import socket
 
 class User: 
-    def __init__(self, user_id, user_name, first_name, last_name, password, is_admin):
+    def __init__(self, user_id, user_name, first_name, last_name, password, is_admin, db_name):
         self.user_id = user_id
         self.user_name = user_name
         self.first_name = first_name
         self.last_name = last_name
         self.password = password
         self.is_admin = is_admin
+        self.db_name = db_name
 def get_user_name():
     while True:
         user_name = input("please eneter your name: ")
@@ -54,15 +55,88 @@ def get_user_host():
         else:
             print("Invalid input. Please enter a valid hostname or IP address.")
 
-#def create_db():   
-    # Connect to MySQL server
-    #try:
-      #  connection = mysql.connector.connect(
-       #     host=get_user_host(),
-        #    user=get_user_name(),
-         #   password=get_user_password()
-        #)
-        #cursor = connection.cursor()     
+def get_db():
+    while True:
+        db_name = input("Please enter the name of the data base: ")
+        if db_name: 
+            return db_name
+        else:
+            print("invalid input. Please enter a non-empty db_name.")
+
+
+
+
+
+#if check_database_existence(db_name):
+#return db_name     
+#else:
+#return create_db()
+
+def does_database_exists(db_name):
+    try:
+        # Connect to MySQL server
+        connection = mysql.connector.connect(
+            user_host = get_user_host(),
+            user_name = get_user_name(),
+            user_password = get_user_password()
+        )
+        cursor = connection.cursor()
+
+        # Execute SQL query to check if the database exists
+        query = "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = %s"
+        cursor.execute(query, (db_name,))
+
+        # Fetch the result
+        result = cursor.fetchone()
+
+        if result:
+            print(f"The database '{db_name}' exists.")
+            return True
+        else:
+            print(f"The database '{db_name}' does not exist.")
+            return False
+
+    except mysql.connector.Error as error:
+        print("Error while connecting to MySQL:", error)
+
+    finally:
+        if connection.is_connected():
+            cursor.close()
+            connection.close()
+            print("MySQL connection is closed")
+
+# Example usage:
+# check_database_existence("your_database_name")
+
+
+def create_db():   
+    db_name = get_db() 
+    try:
+
+        if not does_database_exists(db_name):
+            connection = mysql.connector.connect(
+            host="your_hostname",
+            user="your_username",
+            password="your_password"
+            )
+            cursor = connection.cursor()
+
+         # Execute SQL query to create database
+            cursor.execute("CREATE DATABASE IF NOT EXISTS db_name")
+
+        print("Database created successfully!")
+
+    except mysql.connector.Error as error:
+        print("Error while connecting to MySQL:", error) 
+
+    finally:
+        if connection.is_connected():
+            cursor.close()
+            connection.close()
+            print("MySQL connection is closed")
+
+
+
 
 #def is_user_admin(name): 
 
