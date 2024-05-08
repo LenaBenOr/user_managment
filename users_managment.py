@@ -10,10 +10,13 @@ class User:
 
 def get_user_name():
     
-    user_name = input("please eneter your name: ")
-    if user_name is None: 
+    while True:
         user_name = input("please eneter your name: ")
-    print(user_name)
+        if user_name: 
+            return user_name
+        else:
+            print("invalid input. Please enter a non- empty name.")
+    
 
 
 
